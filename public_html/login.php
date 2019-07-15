@@ -14,12 +14,15 @@
             var onGoogleSignIn = googleUser=>{
                 const id_token = googleUser.getAuthResponse().id_token, login_request = new XMLHttpRequest();
                 login_request.open('POST', "<?php echo getenv('DYNAMIC_URL'); ?>/loginWithGoogle.php", true);
+                login_request.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
                 login_request.onloadend = r=>{
                     if(login_request.status !== 200)
                         return update_status('Whoops, Google Sign-in failed', 'bad');
                     update_status('Signed in with Google, redirecting', 'good');
+                    
+                    //window.location.href="/";
                 };
-                login_request.send('id_token='+encodeURIComponent(id_token));                
+                login_request.send('id_token='+encodeURIComponent(id_token));          
             };         
         </script>
     </head>
