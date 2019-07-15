@@ -2,6 +2,7 @@
 <html>
     <head>
         <title>Login | Title Pending</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script src="https://apis.google.com/js/platform.js" async defer></script>
         <meta name="google-signin-client_id" content="<?php echo getenv('GOOGLE_LOGIN_CLIENT_ID'); ?>">
         <script>
@@ -20,7 +21,7 @@
                         return update_status('Whoops, Google Sign-in failed', 'bad');
                     update_status('Signed in with Google, redirecting', 'good');
                     
-                    //window.location.href="/";
+                    window.location.href="/";
                 };
                 login_request.send('id_token='+encodeURIComponent(id_token));          
             };         
