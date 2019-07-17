@@ -17,13 +17,15 @@ class User{
     
     /** log user in to site **/
     function logUserIn($userId){
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/../other/randomKey.php';
+        
         $cookieKey = '';
         $break = 1000;
         
         $cookieExists = $this->sql->prepare('SELECT 1 FROM user_logins WHERE loggedIn = TRUE AND cookie = ? AND dateLogged > ? LIMIT 1');
         
         do{
-            $cookieKey = $this->generateKey(32);
+            $cookieKey = generateKey(32);
             $cookieExists->bindString($cookieKey)->bindString($this->loginMaxAge)->execute();
             if($break-- < 0){
                 throw new Error('Infinite loop');
@@ -69,39 +71,34 @@ class User{
         //check for user
         $googleId = $payload['sub'];
         
-        $userExists = $this->sql->prepare('SELECT ID FROM user_accounts WHERE googleId = ? LIMIT 1')->bindString($googleId)->execute()->getResult();
+        $userExists = $this->sql->prepare('SELECT userId FROM user_accounts WHERE googleId = ? LIMIT 1')->bindString($googleId)->execute()->getResult();
         
         if($userExists->num_rows){
-            return $this->logUserIn($userExists->fetch_assoc()['ID']);
+            return $this->logUserIn($userExists->fetch_assoc()['userId']);
         }
         
         //user does not have an account yet, create one
         
         //generate key
-        $keyExists = $this->sql->prepare('SELECT 1 FROM user_accounts WHERE ID = ? LIMIT 1');
+        require_once '../other/randomKey.php';
+        $keyExists = $this->sql->prepare('SELECT 1 FROM user_accounts WHERE userId = ? LIMIT 1');
         $userId = '';
         $break = 1000;
         do{
-            $userId = $this->generateKey(64);
+            $userId = generateKey(64);
             $keyExists->bindString($userId)->execute();
             if($break-- < 0){
                 throw new Error('Infinite loop');
             }
         } while ($keyExists->getResult()->num_rows);
         
-        $userAccount = $this->sql->prepare('INSERT INTO user_accounts(googleId, ID, email) VALUES(?, ?, ?)')->bindString($googleId)->bindString($userId)->bindString($payload['email'])->execute();
+        $userAccount = $this->sql->prepare('INSERT INTO user_accounts(googleId, userId, email) VALUES(?, ?, ?)')->bindString($googleId)->bindString($userId)->bindString($payload['email'])->execute();
         
         if($this->sql->getAffectedRows()){
             return $this->logUserIn($userId);
         }
         
         return 0;
-    }
-    
-    /** generate random key **/
-    function generateKey($length = 64){
-        $string = bin2hex(random_bytes(ceil($length/2)));
-        return substr($string, 0, $length);
     }
     
 }

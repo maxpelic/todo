@@ -39,6 +39,11 @@ class PreparedStatement{
 
     function __construct($connection, $query){
         $this->statement = $connection->prepare($query);
+        
+        if(!$this->statement){
+            echo $connection->error;
+            exit;
+        }
     }
 
     function bind($type, $value){
@@ -51,10 +56,12 @@ class PreparedStatement{
     function bindString($string){
         return $this->bind('s', $string);
     }
+    
     /** bind an int to the statement **/
     function bindInt($int){
-        return $this->bind('i', $int);
+        return $this->bind('i', (int)$int);
     }
+    
     /** execute the statement and return the result **/
     function execute(){
         

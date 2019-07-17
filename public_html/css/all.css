@@ -1,0 +1,192 @@
+:root{
+    --mainBackground:url('/img/dark_noise.jpg');
+    --mainText:#ddd;
+    --cardBackground:url('/img/light_noise.jpg');
+    --cardText:#333;
+    --green:#080;
+    --blue:#69d;
+    --red:#d66;
+    --orange:#d96;
+    
+    --textFont: 'Merriweather', serif;
+    --titleFont: 'Fascinate', sans-serif;
+}
+.green{
+    color:var(--green);
+}
+.red{
+    color:var(--red);
+}
+.blue{
+    color:var(--blue);
+}
+.orange{
+    color:var(--orange);
+}
+.status1{
+    background:#d965;
+}
+.status2{
+    background:#69d5;
+}
+.status3{
+    background:#0805;
+}
+html, body{    
+    margin: 0;
+    min-height: 100%;
+    font-family: var(--textFont);
+}
+a{
+    cursor:pointer;
+    text-decoration: none;
+}
+a:hover{
+    text-decoration: underline;
+}
+main{
+    position: absolute; top:0; bottom:0; left:0; right:0;
+    display: flex; justify-content: center; align-items: center;
+    background:var(--mainBackground);
+    color:var(--mainText);
+    z-index: 1;
+}
+main > article{
+    position: relative; width:300px; height: 800px; margin:30px;
+    overflow: hidden;
+}
+main > article.twoPage{
+    width:600px;
+}
+main > article > section{
+    position: absolute; top:71px; bottom:0; left:0; right:0;
+    padding:15px;
+    border-radius: 30px;
+    background:var(--cardBackground); color:var(--cardText);
+}
+main > article > section *{
+    position: relative;
+    z-index: 2;
+}
+.textLarge{
+    margin:0;
+    font-size:70px; text-align: center; text-transform:uppercase;
+    font-family: var(--titleFont); font-weight: bolder;
+    letter-spacing: 3px;
+    padding-left: 3px;
+}
+.textLarge.otherFont{
+    font-family: var(--textFont);
+    letter-spacing: 0;
+    font-size: 58px;
+}
+.textLarge.monospace span{
+    display: inline-block; vertical-align:middle; width:calc(1ch); margin:0; text-align: center;
+    overflow: hidden;
+}
+.stretchContents{
+    display: flex;
+    justify-content: space-between;
+}
+.fit{
+    position: absolute; top:0; bottom:0; left:0; right:0;
+    padding-top:70px;
+    z-index: 1;
+}
+.halfPage{
+    right:50%;
+    padding: 15px; padding-top:100px;
+}
+.fullHeight{
+    padding-top:15px;
+}
+.halfPage.rightHalf{
+    left:50%; right:15px;
+    background:linear-gradient(to right, #0001, #0000 60px);
+}
+.centerContent{
+    display:flex; flex-direction: column; align-content: center; justify-content: center;
+}
+.textSpace{
+    text-align: center; padding:15px 0;
+}
+.noselect{
+    user-select: none;
+}
+#logoutLink{
+    position: fixed;
+    top:15px;
+    right:15px;
+    z-index: 5;
+    color:var(--mainText);
+}
+.popup{
+    position: fixed; top:0; left: 0; right: 0; bottom: 0; z-index: 4;
+    display: none; align-items: center; justify-content: center;
+    background: #3339;
+}
+.popup > *{
+    width:600px; padding:15px; box-sizing: border-box; border-radius: 30px;
+    background:var(--cardBackground); color:var(--cardColor);
+}
+
+#items{
+    padding:15px 0;
+    overflow-y:auto;
+}
+#items li{
+    list-style: none;
+    padding:15px 15px;
+}
+#items li.status0 + li.status0{
+    padding-top:10px;
+}
+#items p{
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin:0;
+}
+#items p span:last-child{
+    flex-grow: 0; margin-right: 15px;
+    text-align: right;
+}
+#items p:not(:first-child), #items p span:last-child{
+    font-size:10px;
+}
+form{
+    display: flex; justify-content: space-between; flex-wrap: wrap;
+}
+form label{
+    width: calc(50% - 15px / 2); display: flex;
+    margin-bottom: 15px;
+}
+form button{
+    background:var(--mainBackground); color:var(--mainText); border:none; padding:10px; border-radius: 100px;
+    font-family: inherit; font-size: inherit;
+}
+form label span{
+    flex-grow: 0; flex-shrink: 0;
+    padding-right: 15px;
+    opacity: 0.6;
+}
+form label input, form label select{
+    background: transparent; color:inherit; border:none; font-family:inherit; font-size: inherit;
+    width: 0;
+}
+form label input, form label select, form .stretchContents, form h1{
+    flex-grow: 1; flex-shrink: 1;
+}
+.popupMenu{
+    padding:0; position: absolute; display: none; z-index: 2;
+    background: var(--cardBackground); color:var(--cardColor); box-shadow: 0 2px 5px -3px currentColor;
+}
+.popupMenu ul{
+    padding:0; margin:0;
+}
+.popupMenu ul li{
+    list-style: none;
+    padding:5px;
+    cursor:pointer;
+}
+.popupMenu ul li:hover{
+    background:var(--mainBackground); color:var(--mainText);
+}
