@@ -16,11 +16,11 @@
     <body>
         <main>
             <article>
-                <h1 class="textLarge noselect">Todo</h1>
+                <h1 class="textLarge noselect">todo</h1>
                 <section>
                     <section class="stretchContents noselect">
                         <select id="todoJob">
-                            <option selected value="">All Jobs</option>
+                            <option selected value="">all jobs</option>
                         </select>
                         <a id="toggleCompleted">view completed</a>
                     </section>
@@ -28,23 +28,23 @@
                         <a id="addItem">add item</a>
                     </section>
                     <section class="fit">
-                        <ol id="items">
+                        <ol id="items" class="list">
                         </ol>
                     </section>
                 </section>
             </article>
             <article class="twoPage">
-                <h1 class="textLarge noselect">Hours</h1>
+                <h1 class="textLarge noselect">hours</h1>
                 <section>
                     <section class="stretchContents noselect">
                         <a id="lastJob">⯇ <span>last job</span></a>
                         <a id="nextJob"><span>next job</span> ⯈</a>
                     </section>
                     <section>
-                        <h2 class="textLarge noselect otherFont">Job</h2>
+                        <h2 class="textLarge noselect otherFont">job</h2>
                     </section>
                     <section class="halfPage centerContent fit fullHeight">
-                        <h3 class="textLarge monospace otherFont blue" id="countdown"><span>0</span><span>0</span>:<span>0</span><span>0</span>:<span>0</span><span>0</span></h3>
+                        <h3 class="textLarge monospace otherFont" id="countdown"><span>0</span><span>0</span>:<span>0</span><span>0</span>:<span>0</span><span>0</span></h3>
                         <section class="stretchContents noselect">
                             <a class="green" id="toggleStopwatch">start</a>
                             <a class="green" id="logEntry">save</a>
@@ -56,10 +56,8 @@
                         <section class="textSpace green noselect">
                             <a id="addEntry">add entry</a>
                         </section>
-                        <section class="fit">
-                            <ol id="entries">
-                            </ol>
-                        </section>
+                        <ol id="entries" class="list">
+                        </ol>
                     </section>
                 </section>
             </article>
@@ -67,16 +65,16 @@
         <a id="logoutLink" href="<?php echo getenv('DYNAMIC_URL'); ?>/logout.php" title="Sign out">Sign out</a>
         <section id="logoutNotice" class="popup">
             <section>
-                <h1 class="textLarge">You've been<br>signed out.</h1>
+                <h1 class="textLarge">you've been<br>signed out.</h1>
                 <section class="textSpace green">
-                    <a href="/login.php">Sign back in</a>
+                    <a href="/login.php">sign back in</a>
                 </section>
             </section>
         </section>
         <section id="newItem" class="popup">
             <form autocomplete="off">
                 <input hidden name="itemId" value="">
-                <h1 class="textLarge">Add an item</h1>
+                <h1 class="textLarge">add an item</h1>
                 <label><span>title: </span><input type="text" name="title" placeholder="enter item title" required></label>
                 <label><span>description:</span> <input type="text" name="description" placeholder="description"></label>
                 <label><span>priority:</span>                    

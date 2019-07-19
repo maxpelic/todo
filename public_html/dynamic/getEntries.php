@@ -2,6 +2,11 @@
 require getenv('API_URL') . '/database.php';
 require getenv('API_URL') . '/user.php';
 
+if(empty($_GET['jobId'])){
+    header('HTTP/1.0 400 Bad Request');
+    exit;
+}
+
 $sql = new Database();
 
 $user = new User($sql);
@@ -13,10 +18,10 @@ if(!$userId){
     exit;
 }
 
-require getenv('API_URL') . '/item.php';
+require getenv('API_URL') . '/entry.php';
 
-$item = new Item($sql);
+$entry = new Entry($sql);
 
 header('Content-type:application/json');
 
-echo json_encode($item->getIncompleteItems($userId));
+echo json_encode($entry->getEntries($userId, $_GET['jobId']));

@@ -1,5 +1,5 @@
 /* eslint-env es6 */
-/* global window,document,gapi,HTMLElement,Event,XMLHttpRequest */
+/* global window,document,gapi,HTMLElement,Event,XMLHttpRequest,URLSearchParams,FormData */
 let googleLoadEvent = new Event('googleLoad');
 // eslint-disable-next-line
 function loadGoogle(){
@@ -15,7 +15,7 @@ function loadGoogle(){
         const today = new Date(), difference = Math.ceil((date.getTime() - today.getTime())/(24*60*60*1000));
         let text = '';
         if(difference === 0){
-            text = today;
+            text = 'today';
         } else if(difference === 1){
             text = 'tomorrow';
         } else if(difference === -1){
@@ -145,7 +145,7 @@ function loadGoogle(){
             item.c(function(e){
                 popupMenu.style.top = e.clientY + 'px';
                 popupMenu.style.left = e.clientX + 'px';
-                popupMenu.style.display = 'block';
+                popupMenu.classList.add('show');
                 popupMenu.targetItem = this.data;
             });
 
@@ -159,7 +159,7 @@ function loadGoogle(){
         clearItems = ()=>todoArea.innerHTML = '', 
         loadIncomplete = ()=>{        
             //load todos
-            return new Promise((resolve, reject)=>{
+            return new Promise(resolve=>{
                 new ajaxRequest(dynamicUrl + '/getIncompleteItems.php').get().then((r,s)=>{
                     if(s === 401) return logUserOut();
                     resolve(JSON.parse(r));
@@ -201,7 +201,7 @@ function loadGoogle(){
             newArray.push(item);
             return newArray;
         }, editItem = data=>{
-            const dreams = document.querySelectorAll('#newItem form input, #newItem form select'), form =  query('#newItem form');
+            const dreams = document.querySelectorAll('#newItem form input, #newItem form select'), form = query('#newItem form');
             form.reset();
             for(const field of dreams){
                 const value = data[field.getAttribute('name')];
@@ -228,6 +228,7 @@ function loadGoogle(){
         //new item
         query('#addItem').c(()=>{
             query('#newItem [name=itemId]').value = '';
+            query('#newItem form').reset();
             query('#newItem').style.display = 'flex';
             query('#newItem h1').textContent = 'Add an Item';
         });
@@ -255,7 +256,7 @@ function loadGoogle(){
         
         document.body.c(e=>{
             if(!e.target.hasParent(todoArea))
-                popupMenu.style.display = 'none';
+                popupMenu.classList.remove('show');
         });
         
         for(const option of popupMenu.querySelectorAll('li')){
@@ -282,6 +283,137 @@ function loadGoogle(){
                 });
             });
         }
+    })();
+    
+    /** hours **/
+    (()=>{
+        const timers = [], timerElement = query('#countdown'), toggleButton = query('#toggleStopwatch'),
+        drawTimer = ()=>{
+            const currentTimer = timers[currentJob];
+            if(!currentTimer || !currentTimer.running) return;
+            
+            const result = getLength(currentTimer);
+            
+            //display time
+            timerElement.innerHTML = `<span>${result.hours.toString().padStart(2, '0').split('').join('</span><span>')}</span>:<span>${result.minutes.toString().padStart(2, '0').split('').join('</span><span>')}</span>:<span>${result.seconds.toString().padStart(2, '0').split('').join('</span><span>')}</span>`;
+            
+            window.requestAnimationFrame(drawTimer);
+            
+        },
+        getLength = timer=>{
+            let timeRun = 0;
+            for(let i = 0; i < timer.started.length; i++){
+                timeRun += (timer.paused[i] || new Date().getTime()) - timer.started[i];
+            }
+            
+            return toParts(timeRun);
+        },
+        toParts = timeRun=>{
+            const length = timeRun;
+            
+            timeRun = Math.floor(timeRun / 1000);
+            const seconds = (timeRun % 60);
+            
+            timeRun = Math.floor(timeRun / 60);
+            const minutes = (timeRun % 60);
+            
+            timeRun = Math.floor(timeRun / 60);
+            const hours = (timeRun);
+            
+            return {
+                length:length,
+                hours:hours,
+                minutes:minutes,
+                seconds:seconds
+            };
+        },
+        toggleStartTimer = ()=>{
+            if(!timers[currentJob]){
+                timers[currentJob] = {
+                    started:[],
+                    paused:[],
+                    running:0
+                };
+            }
+            
+            toggleButton.textContent = timerElement.classList.toggle('blue') ? 'pause' : 'start';
+            
+            if(!timers[currentJob].running){
+                timers[currentJob].started.push(new Date().getTime());
+                window.requestAnimationFrame(drawTimer);
+            } else {
+                timers[currentJob].paused.push(new Date().getTime());
+            }
+            return timers[currentJob].running = !timers[currentJob].running;
+        },
+        resetTimer = ()=>{
+            timers[currentJob] = false;
+            timerElement.innerHTML = '<span>0</span><span>0</span>:<span>0</span><span>0</span>:<span>0</span><span>0</span>';
+            toggleButton.textContent = 'start';
+            timerElement.classList.remove('blue');
+        },
+        saveTimer = ()=>{
+            //todo
+            const note = query('#entryNote').textContent;
+            
+            new ajaxRequest(dynamicUrl + '/editEntry.php').post('clockedIn=' + timers[currentJob].started[0] + '&jobId=' + currentJob + '&length=' + getLength(timers[currentJob]).length + '&description=' + note).then((r,s)=>{
+                if(s === 401) return logUserOut();
+                if(s !== 200) return;
+                
+                query('#entryNote').textContent = '';
+                
+                resetTimer();
+                
+                addAll(JSON.parse(r));
+            });
+        },
+        loadEntries = ()=>{
+            return new Promise(resolve=>{
+                new ajaxRequest(dynamicUrl + '/getEntries.php?jobId=' + currentJob).get().then((r,s)=>{
+                    if(s === 401) return logUserOut();
+                    if(s !== 200) return;
+                    resolve(JSON.parse(r));
+                });
+            });
+        },
+        addAll = entries=>{
+            currentEntries = entries.concat(currentEntries);
+            for(const entry of entries){
+                addEntry(entry);
+            }
+        },
+        addEntry = entry=>{
+            const item = element('li'), titleRow = element('p'), date = element('span'), hours = element('span'), secondRow = element('p'), description = element('span'), payment = element('span');
+            
+            date.textContent = formatDate(entry.clockedIn).text;
+            const parts = toParts(entry.length);
+            hours.textContent = parts.hours + ':' + parts.minutes.toString().padStart(2, '0');
+            
+            titleRow.append(date);
+            titleRow.append(hours);
+            
+            item.append(titleRow);
+            
+            description.textContent = entry.description;
+            payment.textContent = '$' + (15 * (parts.hours + parts.minutes / 60));
+            
+            secondRow.append(description);
+            secondRow.append(payment);
+            
+            item.append(secondRow);
+            
+            query('#entries').prepend(item);
+        };
+        let currentJob = 100; //todo
+        
+        toggleButton.c(toggleStartTimer);
+        query('#logEntry').c(saveTimer);
+        query('#clearStopwatch').c(resetTimer);
+        
+        let currentEntries = [];
+        loadEntries().then(entries=>{
+            addAll(entries);
+        });
     })();
     
 })();

@@ -63,6 +63,7 @@ main > article > section{
     padding:15px;
     border-radius: 30px;
     background:var(--cardBackground); color:var(--cardText);
+    overflow: hidden;
 }
 main > article > section *{
     position: relative;
@@ -81,7 +82,7 @@ main > article > section *{
     font-size: 58px;
 }
 .textLarge.monospace span{
-    display: inline-block; vertical-align:middle; width:calc(1ch); margin:0; text-align: center;
+    display: inline-block; vertical-align:middle; width:1ch; margin:0; text-align: center;
     overflow: hidden;
 }
 .stretchContents{
@@ -92,16 +93,17 @@ main > article > section *{
     position: absolute; top:0; bottom:0; left:0; right:0;
     padding-top:70px;
     z-index: 1;
+    overflow-y: auto;
 }
 .halfPage{
     right:50%;
-    padding: 15px; padding-top:100px;
+    padding: 15px;
 }
 .fullHeight{
     padding-top:15px;
 }
 .halfPage.rightHalf{
-    left:50%; right:15px;
+    left:50%; right:15px; padding: 0; padding-top:100px; width:50%;
     background:linear-gradient(to right, #0001, #0000 60px);
 }
 .centerContent{
@@ -130,26 +132,26 @@ main > article > section *{
     background:var(--cardBackground); color:var(--cardColor);
 }
 
-#items{
+.list{
     padding:15px 0;
     overflow-y:auto;
 }
-#items li{
+.list li{
     list-style: none;
     padding:15px 15px;
 }
-#items li.status0 + li.status0{
+#entries li, #items li.status0 + li.status0, #items li.status1 + li.status1, #items li.status2 + li.status2, #items li.status3 + li.status3{
     padding-top:10px;
 }
-#items p{
+.list p{
     display: flex; justify-content: space-between; align-items: baseline;
     margin:0;
 }
-#items p span:last-child{
+.list p span:last-child{
     flex-grow: 0; margin-right: 15px;
     text-align: right;
 }
-#items p:not(:first-child), #items p span:last-child{
+.list p:not(:first-child), .list p span:last-child{
     font-size:10px;
 }
 form{
@@ -168,16 +170,20 @@ form label span{
     padding-right: 15px;
     opacity: 0.6;
 }
-form label input, form label select{
+form label input, form label select, select{
     background: transparent; color:inherit; border:none; font-family:inherit; font-size: inherit;
-    width: 0;
+    width: 0; min-width: 100px;
 }
 form label input, form label select, form .stretchContents, form h1{
     flex-grow: 1; flex-shrink: 1;
 }
 .popupMenu{
-    padding:0; position: absolute; display: none; z-index: 2;
-    background: var(--cardBackground); color:var(--cardColor); box-shadow: 0 2px 5px -3px currentColor;
+    padding:0; position: absolute; z-index: 2; overflow: hidden;
+    background: var(--cardBackground); color:var(--cardColor); box-shadow: 0 2px 5px -3px currentColor; height:0;
+    transition: height 0.2s;
+}
+.popupMenu.show{
+    height:150px;
 }
 .popupMenu ul{
     padding:0; margin:0;

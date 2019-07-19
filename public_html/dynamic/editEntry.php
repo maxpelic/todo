@@ -2,6 +2,11 @@
 require getenv('API_URL') . '/database.php';
 require getenv('API_URL') . '/user.php';
 
+if(empty($_POST['length']) || empty($_POST['jobId'])){
+    header('HTTP/1.0 400 Bad Request');
+    exit;
+}
+
 $sql = new Database();
 
 $user = new User($sql);
@@ -13,27 +18,25 @@ if(!$userId){
     exit;
 }
 
-require getenv('API_URL') . '/item.php';
+require getenv('API_URL') . '/entry.php';
 
-$item = new Item($sql);
+$entry = new Entry($sql);
 
-$itemId;
+$entryId;
 
 //if no item specified, create new item
-if(!empty($_POST['itemId'])){
-    $itemId = $_POST['itemId'];
+if(!empty($_POST['entryId'])){
+    $entryId = $_POST['entryId'];
 } else {
-    $itemId = $item->createItem($userId);
+    $entryId = $entry->createEntry($userId, $_POST['jobId'], (int)$_POST['length']);
 }
 
+//update entry
 $fields = [
+    'clockedIn'=>'date',
+    'length'=>'int',
     'jobId'=>'string',
-    'archived'=>'boolean',
-    'title'=>'string',
-    'status'=>'int',
-    'description'=>'string',
-    'due'=>'datetime',
-    'priority'=>'int'
+    'description'=>'string'    
 ];
 
 foreach($fields as $field=>$type){
@@ -42,7 +45,7 @@ foreach($fields as $field=>$type){
     
     $value = $_POST[$field];
     
-    $updateQuery = $sql->prepare("UPDATE items SET $field = ? WHERE itemId = ? AND userId = ?");
+    $updateQuery = $sql->prepare("UPDATE entries SET $field = ? WHERE entryId = ? AND userId = ?");
     
     if($type === 'boolean'){
         $value = $value === 'true' ? 1 : $value === 'false' ? 0 : (int)$value;
@@ -60,7 +63,7 @@ foreach($fields as $field=>$type){
         $updateQuery->bindString($value);
     }
     
-    $updateQuery->bindString($itemId);
+    $updateQuery->bindString($entryId);
     $updateQuery->bindString($userId);
     
     $updateQuery->execute();
@@ -69,4 +72,4 @@ foreach($fields as $field=>$type){
 
 header('Content-type: application/json');
 
-echo json_encode($item->getItem($userId, $itemId));
+echo json_encode($entry->getEntry($userId, $entryId));
