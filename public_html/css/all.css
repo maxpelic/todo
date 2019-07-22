@@ -40,6 +40,7 @@ html, body{
 a{
     cursor:pointer;
     text-decoration: none;
+    color: inherit;
 }
 a:hover{
     text-decoration: underline;
@@ -90,8 +91,7 @@ main > article > section *{
     justify-content: space-between;
 }
 .fit{
-    position: absolute; top:0; bottom:0; left:0; right:0;
-    padding-top:70px;
+    position: absolute; top:70px; bottom:0; left:0; right:0;
     z-index: 1;
     overflow-y: auto;
 }
@@ -103,8 +103,12 @@ main > article > section *{
     padding-top:15px;
 }
 .halfPage.rightHalf{
-    left:50%; right:15px; padding: 0; padding-top:100px; width:50%;
-    background:linear-gradient(to right, #0001, #0000 60px);
+    left:50%; right:0; top:100px; width:50%; padding: 0;
+}
+.shadow{
+    top:0; bottom:0; left:0; right:0; position: absolute;
+    background:repeating-linear-gradient(to right, #0001, #0000 60px, #0000 50%);
+    pointer-events: none;
 }
 .centerContent{
     display:flex; flex-direction: column; align-content: center; justify-content: center;
@@ -115,12 +119,17 @@ main > article > section *{
 .noselect{
     user-select: none;
 }
-#logoutLink{
+heading{
     position: fixed;
     top:15px;
     right:15px;
+    left:15px;
     z-index: 5;
     color:var(--mainText);
+}
+heading section > *:not(:first-child){
+    display: inline-block;
+    margin-left: 15px;
 }
 .popup{
     position: fixed; top:0; left: 0; right: 0; bottom: 0; z-index: 4;
@@ -148,7 +157,7 @@ main > article > section *{
     margin:0;
 }
 .list p span:last-child{
-    flex-grow: 0; margin-right: 15px;
+    flex-grow: 0; margin-left: 15px;
     text-align: right;
 }
 .list p:not(:first-child), .list p span:last-child{

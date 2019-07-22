@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Title Pending</title>
+        <title>Todo Plus</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         
         <script src="js/all.js" async defer></script>
         <script src="https://apis.google.com/js/platform.js?onload=loadGoogle" async defer></script>
+        <script src="https://kit.fontawesome.com/07dfe92655.js" async></script>
         
         <meta name="dynamicUrl" content="<?php echo htmlspecialchars(getenv('DYNAMIC_URL')); ?>">
         <meta name="google-signin-client_id" content="<?php echo getenv('GOOGLE_LOGIN_CLIENT_ID'); ?>">
@@ -43,6 +44,7 @@
                     <section>
                         <h2 class="textLarge noselect otherFont">job</h2>
                     </section>
+                    <section class="shadow"></section>
                     <section class="halfPage centerContent fit fullHeight">
                         <h3 class="textLarge monospace otherFont" id="countdown"><span>0</span><span>0</span>:<span>0</span><span>0</span>:<span>0</span><span>0</span></h3>
                         <section class="stretchContents noselect">
@@ -62,7 +64,16 @@
                 </section>
             </article>
         </main>
-        <a id="logoutLink" href="<?php echo getenv('DYNAMIC_URL'); ?>/logout.php" title="Sign out">Sign out</a>
+        <heading class="stretchContents">
+            <section>
+                <a href="/">todo.plus</a>
+                <a href="https://github.com/maxpelic/todo"><i class="fab fa-github-alt"></i></a>
+                <a href="/donate"><i class="fa fas fa-hand-holding-usd"></i></a>
+            </section>
+            <section>
+                <a id="logoutLink" href="<?php echo getenv('DYNAMIC_URL'); ?>/logout.php" title="Sign out"><i class="fas fa-sign-out-alt"></i> sign out</a>
+            </section>
+        </heading>
         <section id="logoutNotice" class="popup">
             <section>
                 <h1 class="textLarge">you've been<br>signed out.</h1>
@@ -90,19 +101,36 @@
                         <option value=8>do it yesterday</option>
                     </select>
                 </label>
-                    <label><span>due date:</span> <input type="date" name="due" value=""></label>
-                    <label><span>job:</span>
+                <label><span>due date:</span> <input type="date" name="due" value=""></label>
+                <label><span>job:</span>
                     <select name="job">
                         <option selected value="">none</option> 
                     </select>                
                 </label>
-                    <label><span>status:</span>
+                <label><span>status:</span>
                     <select name="status">
                         <option selected value=0>no progress</option>
                         <option value=1>started</option>
                         <option value=2>waiting</option>
                         <option value=3>complete</option>
                     </select>
+                </label>
+                <section class="stretchContents">
+                    <button type="reset" >cancel</button><button type="submit">save</button>
+                </section>
+            </form>
+        </section>
+        <section id="newEntry" class="popup">
+            <form autocomplete="off">
+                <input hidden name="entryId" value="">
+                <h1 class="textLarge">add an entry</h1>
+                <label><span>length: </span><input type="number" name="length" placeholder="length (in minutes)" required></label>
+                <label><span>description:</span> <input type="text" name="description" placeholder="description"></label>
+                <label><span>date started:</span><input type="date" name="clockedIn" value="" required></label>
+                <label><span>job:</span>
+                    <select name="job">
+                        <option selected value="">none</option> 
+                    </select>                
                 </label>
                 <section class="stretchContents">
                     <button type="reset" >cancel</button><button type="submit">save</button>

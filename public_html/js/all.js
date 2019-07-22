@@ -263,7 +263,7 @@ function loadGoogle(){
             if(option.getAttribute('name') === 'edit'){
                 option.c(()=>{
                     editItem(popupMenu.targetItem);
-                    popupMenu.style.display = 'none';
+                    popupMenu.classList.remove('show');
                 });
                 continue;
             }
@@ -279,7 +279,7 @@ function loadGoogle(){
                     clearItems();
                     currentItems = sortItems(currentItems);
                     addAll(currentItems);
-                    popupMenu.style.display = 'none';
+                    popupMenu.classList.remove('show');
                 });
             });
         }
@@ -395,7 +395,7 @@ function loadGoogle(){
             item.append(titleRow);
             
             description.textContent = entry.description;
-            payment.textContent = '$' + (15 * (parts.hours + parts.minutes / 60));
+            payment.textContent = '$' + (15 * (parts.hours + parts.minutes / 60)).toFixed(2);
             
             secondRow.append(description);
             secondRow.append(payment);
