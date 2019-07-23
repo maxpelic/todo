@@ -67,7 +67,7 @@
         <heading class="stretchContents">
             <section>
                 <a href="/">todo.plus</a>
-                <a href="https://github.com/maxpelic/todo"><i class="fab fa-github-alt"></i></a>
+                <a href="https://github.com/maxpelic/todo"><i class="fab fa-github"></i></a>
                 <a href="/donate"><i class="fa fas fa-hand-holding-usd"></i></a>
             </section>
             <section>

@@ -290,14 +290,15 @@ function loadGoogle(){
         const timers = [], timerElement = query('#countdown'), toggleButton = query('#toggleStopwatch'),
         drawTimer = ()=>{
             const currentTimer = timers[currentJob];
-            if(!currentTimer || !currentTimer.running) return;
+            
+            if(!currentTimer) return;
             
             const result = getLength(currentTimer);
             
             //display time
             timerElement.innerHTML = `<span>${result.hours.toString().padStart(2, '0').split('').join('</span><span>')}</span>:<span>${result.minutes.toString().padStart(2, '0').split('').join('</span><span>')}</span>:<span>${result.seconds.toString().padStart(2, '0').split('').join('</span><span>')}</span>`;
             
-            window.requestAnimationFrame(drawTimer);
+            if(currentTimer.running) window.requestAnimationFrame(drawTimer);
             
         },
         getLength = timer=>{
@@ -341,10 +342,18 @@ function loadGoogle(){
             if(!timers[currentJob].running){
                 timers[currentJob].started.push(new Date().getTime());
                 window.requestAnimationFrame(drawTimer);
+                
+                
+                window.localStorage.setItem('timer.' + currentJob, new Date().getTime() - getLength(timers[currentJob]).length);
             } else {
                 timers[currentJob].paused.push(new Date().getTime());
+                
+                
+                window.localStorage.setItem('timer.' + currentJob, new Date().getTime() - getLength(timers[currentJob]).length+ '_paused_' + new Date().getTime());
             }
-            return timers[currentJob].running = !timers[currentJob].running;
+            timers[currentJob].running = !timers[currentJob].running;            
+            
+            return timers[currentJob].running;
         },
         resetTimer = ()=>{
             timers[currentJob] = false;
@@ -403,8 +412,35 @@ function loadGoogle(){
             item.append(secondRow);
             
             query('#entries').prepend(item);
+        },
+        loadFromStorage = job=>{
+            const data = window.localStorage.getItem('timer.' + job).split('_');
+            
+            console.log(data);
+            
+            timers[job] = {
+                started:[],
+                paused:[],
+                running:1
+            };
+            timers[job].started.push(new Date(parseInt(data[0])));
+            
+            if(data.length === 3){
+                timers[job].paused.push(new Date(parseInt(data[2])));
+                timers[job].running = 0;
+            }
+            if(job === currentJob){
+                timers[job].running ?
+                    (timerElement.classList.add('blue'), toggleButton.textContent = 'pause')
+                    : (timerElement.classList.remove('blue'), toggleButton.textContent = 'start');
+                window.requestAnimationFrame(drawTimer);
+            }
+            
+            console.log(timers);
         };
         let currentJob = 100; //todo
+        
+        loadFromStorage(currentJob);
         
         toggleButton.c(toggleStartTimer);
         query('#logEntry').c(saveTimer);
