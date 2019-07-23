@@ -105,8 +105,10 @@ function loadGoogle(){
     (()=>{
         const todoArea = query('#items'), popupMenu = query('#checklistMenu');
         let priorities = [];
+        
         //add item to list
         const addItem = data=>{
+            
             const item = element('li'), titleRow = element('p'), title = element('span'), priority = element('span'), infoRow = element('p'), due = element('span'), job = element('span'), description = element('p');
             
             title.textContent = data.title;
@@ -151,14 +153,22 @@ function loadGoogle(){
 
             todoArea.append(item);
         }, 
+        
+        //add all items to the list (calls addItem for each item)
         addAll = (items)=>{
+            
             for(const item of items){
                 addItem(item);
             }
         },
-        clearItems = ()=>todoArea.innerHTML = '', 
+              
+        //clear all items on the list
+        clearItems = ()=>
+            void (todoArea.innerHTML = ''),
+              
+        //fetch all incomplete items and return a promise
         loadIncomplete = ()=>{        
-            //load todos
+            
             return new Promise(resolve=>{
                 new ajaxRequest(dynamicUrl + '/getIncompleteItems.php').get().then((r,s)=>{
                     if(s === 401) return logUserOut();
@@ -166,7 +176,10 @@ function loadGoogle(){
                 });
             });
         },
+              
+        //get dynamic sort property of an item
         getDynamicPriority = item=>{
+            
             let priority = 0;
             if(item.due){
                 const difference = formatDate(item.due).integer;
@@ -187,7 +200,10 @@ function loadGoogle(){
             priority += item.priority * 16; // ?
             item.dynamicPriority = priority;
         },
+              
+        //sort list of items based on their dynamic properties, return sorted list
         sortItems = items=>{
+            
             items = items.filter(item=>item.status < 3);
             for(const item of items){
                 getDynamicPriority(item);
@@ -195,12 +211,22 @@ function loadGoogle(){
             items.sort((a,b)=>b.dynamicPriority - a.dynamicPriority);
             return items;
         },
-        getPriorityColor = (priority)=>'#' + Math.floor(150 * (priority+1) / 9).toString(16).padStart(2, '0') + Math.floor(150 * (9-priority) / 9).toString(16).padStart(2, '0') + '00',
+              
+        //get priority color
+        getPriorityColor = (priority)=>
+            '#' + Math.floor(150 * (priority+1) / 9).toString(16).padStart(2, '0') + Math.floor(150 * (9-priority) / 9).toString(16).padStart(2, '0') + '00',
+              
+        //search items for an item id and replace it with a new item
         replaceItem = (item,items)=>{
+            
             let newArray = items.filter(i=>i.itemId !== item.itemId);
             newArray.push(item);
             return newArray;
-        }, editItem = data=>{
+        }, 
+              
+        //show item editing form
+        editItem = data=>{
+            
             const dreams = document.querySelectorAll('#newItem form input, #newItem form select'), form = query('#newItem form');
             form.reset();
             for(const field of dreams){
@@ -219,6 +245,7 @@ function loadGoogle(){
             priorityLabels[i].style.color = getPriorityColor(i);
         }
         
+        //load current items
         let currentItems = [];
         loadIncomplete().then(items=>{
             currentItems = sortItems(items);
@@ -254,6 +281,7 @@ function loadGoogle(){
             this.parentElement.style.display = 'none';
         });
         
+        //load popup menu
         document.body.c(e=>{
             if(!e.target.hasParent(todoArea))
                 popupMenu.classList.remove('show');
@@ -287,8 +315,12 @@ function loadGoogle(){
     
     /** hours **/
     (()=>{
+        
         const timers = [], timerElement = query('#countdown'), toggleButton = query('#toggleStopwatch'),
+        
+        //draw the timer (fired every frame when the timer is running)
         drawTimer = ()=>{
+            
             const currentTimer = timers[currentJob];
             
             if(!currentTimer) return;
@@ -299,9 +331,11 @@ function loadGoogle(){
             timerElement.innerHTML = `<span>${result.hours.toString().padStart(2, '0').split('').join('</span><span>')}</span>:<span>${result.minutes.toString().padStart(2, '0').split('').join('</span><span>')}</span>:<span>${result.seconds.toString().padStart(2, '0').split('').join('</span><span>')}</span>`;
             
             if(currentTimer.running) window.requestAnimationFrame(drawTimer);
-            
         },
+              
+        //get timer time run
         getLength = timer=>{
+            
             let timeRun = 0;
             for(let i = 0; i < timer.started.length; i++){
                 timeRun += (timer.paused[i] || new Date().getTime()) - timer.started[i];
@@ -309,7 +343,10 @@ function loadGoogle(){
             
             return toParts(timeRun);
         },
+              
+        //get parts of time (hours, minutes, seconds)
         toParts = timeRun=>{
+            
             const length = timeRun;
             
             timeRun = Math.floor(timeRun / 1000);
@@ -328,7 +365,33 @@ function loadGoogle(){
                 seconds:seconds
             };
         },
+              
+        //refresh the timer interface, color
+        refreshTimer = ()=>{
+            
+            //start
+            if(!timers[currentJob]){
+                timerElement.innerHTML = '<span>0</span><span>0</span>:<span>0</span><span>0</span>:<span>0</span><span>0</span>';
+                toggleButton.textContent = 'start';
+                timerElement.classList.remove('blue');
+                return;
+            }
+            
+            //pause
+            if(timers[currentJob].running){
+                timerElement.classList.add('blue');
+                toggleButton.textContent = 'pause';
+                return;
+            } 
+            
+            //resume
+            timerElement.classList.remove('blue');
+            toggleButton.textContent = 'resume';
+        },
+              
+        //toggle timer running
         toggleStartTimer = ()=>{
+            
             if(!timers[currentJob]){
                 timers[currentJob] = {
                     started:[],
@@ -337,32 +400,37 @@ function loadGoogle(){
                 };
             }
             
-            toggleButton.textContent = timerElement.classList.toggle('blue') ? 'pause' : 'start';
+            timers[currentJob].running = !timers[currentJob].running;     
             
-            if(!timers[currentJob].running){
+            if(timers[currentJob].running){
                 timers[currentJob].started.push(new Date().getTime());
-                window.requestAnimationFrame(drawTimer);
-                
                 
                 window.localStorage.setItem('timer.' + currentJob, new Date().getTime() - getLength(timers[currentJob]).length);
-            } else {
-                timers[currentJob].paused.push(new Date().getTime());
                 
+                window.requestAnimationFrame(drawTimer);
+            } else {
+                timers[currentJob].paused.push(new Date().getTime());                
                 
                 window.localStorage.setItem('timer.' + currentJob, new Date().getTime() - getLength(timers[currentJob]).length+ '_paused_' + new Date().getTime());
             }
-            timers[currentJob].running = !timers[currentJob].running;            
+            
+            refreshTimer();
             
             return timers[currentJob].running;
         },
+              
+        //reset current timer to 0
         resetTimer = ()=>{
+            
+            window.localStorage.removeItem('timer.' + currentJob);
+            document.title = 'Todo Plus';
             timers[currentJob] = false;
-            timerElement.innerHTML = '<span>0</span><span>0</span>:<span>0</span><span>0</span>:<span>0</span><span>0</span>';
-            toggleButton.textContent = 'start';
-            timerElement.classList.remove('blue');
+            refreshTimer();
         },
+        
+        //save current timer and reset
         saveTimer = ()=>{
-            //todo
+            
             const note = query('#entryNote').textContent;
             
             new ajaxRequest(dynamicUrl + '/editEntry.php').post('clockedIn=' + timers[currentJob].started[0] + '&jobId=' + currentJob + '&length=' + getLength(timers[currentJob]).length + '&description=' + note).then((r,s)=>{
@@ -376,22 +444,31 @@ function loadGoogle(){
                 addAll(JSON.parse(r));
             });
         },
-        loadEntries = ()=>{
+              
+        //load entries for a job
+        loadEntries = job=>{
+            
             return new Promise(resolve=>{
-                new ajaxRequest(dynamicUrl + '/getEntries.php?jobId=' + currentJob).get().then((r,s)=>{
+                new ajaxRequest(dynamicUrl + '/getEntries.php?jobId=' + job).get().then((r,s)=>{
                     if(s === 401) return logUserOut();
                     if(s !== 200) return;
                     resolve(JSON.parse(r));
                 });
             });
         },
+        
+        //add all entries to the list
         addAll = entries=>{
+            
             currentEntries = entries.concat(currentEntries);
             for(const entry of entries){
                 addEntry(entry);
             }
         },
+              
+        //add an entry to the list
         addEntry = entry=>{
+            
             const item = element('li'), titleRow = element('p'), date = element('span'), hours = element('span'), secondRow = element('p'), description = element('span'), payment = element('span');
             
             date.textContent = formatDate(entry.clockedIn).text;
@@ -413,10 +490,13 @@ function loadGoogle(){
             
             query('#entries').prepend(item);
         },
+              
+        //load timer from storage (if timer is saved)
         loadFromStorage = job=>{
-            const data = window.localStorage.getItem('timer.' + job).split('_');
             
-            console.log(data);
+            if(!window.localStorage.getItem('timer.' + job)) return;
+            
+            const data = window.localStorage.getItem('timer.' + job).split('_');
             
             timers[job] = {
                 started:[],
@@ -430,15 +510,36 @@ function loadGoogle(){
                 timers[job].running = 0;
             }
             if(job === currentJob){
-                timers[job].running ?
-                    (timerElement.classList.add('blue'), toggleButton.textContent = 'pause')
-                    : (timerElement.classList.remove('blue'), toggleButton.textContent = 'start');
+                refreshTimer();
                 window.requestAnimationFrame(drawTimer);
             }
+        },
+              
+        //update document title with timer
+        updateTitle = ()=>{
+            if(timers[currentJob]){
+                const parts = getLength(timers[currentJob]);
+                document.title = 'Todo Plus - ' + parts.hours.toString().padStart(2, '0') + ':' + parts.minutes.toString().padStart(2, '0') + ':' + parts.seconds.toString().padStart(2, '0');
+                return;
+            }
             
-            console.log(timers);
+            document.title = 'Todo Plus';
         };
-        let currentJob = 100; //todo
+        
+        //update title of page while not in focus
+        let titleInterval = 0;
+        window.addEventListener('blur', ()=>{
+            if(!timers[currentJob]) return;
+            titleInterval = window.setInterval(updateTitle, 1000);
+            updateTitle();
+        });
+        window.addEventListener('focus', ()=>{
+            window.clearInterval(titleInterval);
+            document.title = 'Todo Plus';
+        });
+        
+        //set up timer
+        let currentJob = window.localStorage.getItem('currentJob') || 'none';
         
         loadFromStorage(currentJob);
         
@@ -447,7 +548,7 @@ function loadGoogle(){
         query('#clearStopwatch').c(resetTimer);
         
         let currentEntries = [];
-        loadEntries().then(entries=>{
+        loadEntries(currentJob).then(entries=>{
             addAll(entries);
         });
     })();
