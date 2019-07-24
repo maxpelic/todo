@@ -48,7 +48,7 @@ class Item{
             }
         } while($keyExists->execute()->getResult()->num_rows);
         
-        $insertQuery = $this->sql->prepare('INSERT INTO items(userId, itemId) VALUES(?, ?)')->bindString($userId)->bindString($itemId)->execute();
+        $this->sql->prepare('INSERT INTO items(userId, itemId) VALUES(?, ?)')->bindString($userId)->bindString($itemId)->execute();
         
         return $itemId;
     }

@@ -32,7 +32,7 @@ $fields = [
     'title'=>'string',
     'status'=>'int',
     'description'=>'string',
-    'due'=>'datetime',
+    'due'=>'date',
     'priority'=>'int'
 ];
 
@@ -49,7 +49,7 @@ foreach($fields as $field=>$type){
         $type = 'int';
     }
     
-    if($type === 'datetime'){
+    if($type === 'date'){
         $value = $value ? date('Y-m-d g:i:s', strtotime($value)) : '';
         $type = 'string';
     }

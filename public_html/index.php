@@ -20,8 +20,8 @@
                 <h1 class="textLarge noselect">todo</h1>
                 <section>
                     <section class="stretchContents noselect">
-                        <select id="todoJob">
-                            <option selected value="">all jobs</option>
+                        <select name="jobId" id="todoJob">
+                            <option selected>all jobs</option>
                         </select>
                         <a id="toggleCompleted">view completed</a>
                     </section>
@@ -34,6 +34,7 @@
                     </section>
                 </section>
             </article>
+            
             <article class="twoPage">
                 <h1 class="textLarge noselect">hours</h1>
                 <section>
@@ -64,6 +65,7 @@
                 </section>
             </article>
         </main>
+        
         <heading class="stretchContents">
             <section>
                 <a href="/">todo.plus</a>
@@ -71,9 +73,11 @@
                 <a href="/donate"><i class="fa fas fa-hand-holding-usd"></i></a>
             </section>
             <section>
+                <a id="editJobs">edit jobs</a>
                 <a id="logoutLink" href="<?php echo getenv('DYNAMIC_URL'); ?>/logout.php" title="Sign out"><i class="fas fa-sign-out-alt"></i> sign out</a>
             </section>
         </heading>
+        
         <section id="logoutNotice" class="popup">
             <section>
                 <h1 class="textLarge">you've been<br>signed out.</h1>
@@ -82,6 +86,21 @@
                 </section>
             </section>
         </section>
+        
+        <section id="jobList" class="popup">
+            <form autocomplete="off">
+                <h1 class="textLarge">edit jobs</h1>
+                <span id="existingJobs"></span><br>
+                <b class="header">new job:</b><br><br>
+                <input hidden name="jobId[]" value="">
+                <label><span>title:</span> <input type="text" name="title[]"></label><label><span>hourly rate:</span> <input type="number" value=0 name="hourlyRate[]"></label>
+                <section class="stretchContents">
+                    <button type="reset">close</button>
+                    <button type="submit">save</button>
+                </section>
+            </form>
+        </section>
+        
         <section id="newItem" class="popup">
             <form autocomplete="off">
                 <input hidden name="itemId" value="">
@@ -103,8 +122,8 @@
                 </label>
                 <label><span>due date:</span> <input type="date" name="due" value=""></label>
                 <label><span>job:</span>
-                    <select name="job">
-                        <option selected value="">none</option> 
+                    <select name="jobId">
+                        <option>none</option> 
                     </select>                
                 </label>
                 <label><span>status:</span>
@@ -120,6 +139,7 @@
                 </section>
             </form>
         </section>
+        
         <section id="newEntry" class="popup">
             <form autocomplete="off">
                 <input hidden name="entryId" value="">
@@ -128,15 +148,18 @@
                 <label><span>description:</span> <input type="text" name="description" placeholder="description"></label>
                 <label><span>date started:</span><input type="date" name="clockedIn" value="" required></label>
                 <label><span>job:</span>
-                    <select name="job">
-                        <option selected value="">none</option> 
+                    <select name="jobId">
+                        <option selected>none</option> 
                     </select>                
                 </label>
                 <section class="stretchContents">
-                    <button type="reset" >cancel</button><button type="submit">save</button>
+                    <button type="reset" >cancel</button>
+                    <button type="button">archive</button>
+                    <button type="submit">save</button>
                 </section>
             </form>
         </section>
+        
         <section class="popupMenu" id="checklistMenu">
             <ul>
                 <li name="edit" class="textSpace">edit</li>

@@ -47,13 +47,8 @@ foreach($fields as $field=>$type){
     
     $updateQuery = $sql->prepare("UPDATE entries SET $field = ? WHERE entryId = ? AND userId = ?");
     
-    if($type === 'boolean'){
-        $value = $value === 'true' ? 1 : $value === 'false' ? 0 : (int)$value;
-        $type = 'int';
-    }
-    
-    if($type === 'datetime'){
-        $value = $value ? date('Y-m-d g:i:s', strtotime($value)) : '';
+    if($type === 'date'){
+        $value = $value ? date('Y-m-d g:i:s', (strtotime($value))) : '';
         $type = 'string';
     }
     

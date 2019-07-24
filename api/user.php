@@ -92,7 +92,7 @@ class User{
             }
         } while ($keyExists->getResult()->num_rows);
         
-        $userAccount = $this->sql->prepare('INSERT INTO user_accounts(googleId, userId, email) VALUES(?, ?, ?)')->bindString($googleId)->bindString($userId)->bindString($payload['email'])->execute();
+        $this->sql->prepare('INSERT INTO user_accounts(googleId, userId, email) VALUES(?, ?, ?)')->bindString($googleId)->bindString($userId)->bindString($payload['email'])->execute();
         
         if($this->sql->getAffectedRows()){
             return $this->logUserIn($userId);

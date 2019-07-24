@@ -1,6 +1,6 @@
 /* eslint-env es6 */
 /* global window,document,gapi,HTMLElement,Event,XMLHttpRequest,URLSearchParams,FormData */
-let googleLoadEvent = new Event('googleLoad');
+const googleLoadEvent = new Event('googleLoad');
 // eslint-disable-next-line
 function loadGoogle(){
     gapi.load('auth2', function() {
@@ -52,7 +52,7 @@ function loadGoogle(){
     }
     ajaxRequest.prototype.post = function(data){
         this.request.open('POST', this.url, true);
-        this.request.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+        if(typeof data === 'string') this.request.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
         this.request.send(data);
         return this;
     };
@@ -91,6 +91,119 @@ function loadGoogle(){
         if(window.gapi && gapi.auth2) logOutGoogle();
         else window.addEventListener('googleLoad', logOutGoogle);
     };
+    
+    /** jobs **/
+    const jobsLoaded = new Event('jobsLoad'), jobForm = query('#jobList form'), existingJobs = query('#existingJobs'),
+          
+    //get all jobs
+    loadJobs = ()=>{
+        
+         return new Promise(resolve=>{
+             new ajaxRequest(dynamicUrl + '/getJobs.php').get().then((r,s)=>{
+                 if(s === 401) return logUserOut();
+                 resolve(JSON.parse(r));
+             });
+         });
+    },
+          
+    //clear jobs from lists
+    clearJobs = ()=>{
+        const jobElements = document.querySelectorAll('select[name=jobId]');
+        
+        for(const select of jobElements){
+            const toDelete = select.querySelectorAll('option[value]');
+            
+            for(let elementToDelete of toDelete){
+                select.removeChild(elementToDelete);
+            }
+        }
+        
+        //remove options from form
+        existingJobs.innerHTML = '';
+    },
+          
+    //add job to list
+    addJob = job=>{
+        
+        const jobElements = document.querySelectorAll('select[name=jobId]');
+        
+        for(const select of jobElements){
+            
+            const option = element('option');
+            option.value = job.jobId;
+            option.textContent = job.title;
+            
+            select.append(option);
+        }
+        
+        const jobId = element('input'), titleLabel = element('label'), title = element('input'), hourlyRateLabel = element('label'), hourlyRate = element('input');
+        
+        jobId.setAttribute('hidden', 'hidden');
+        jobId.value = job.jobId;
+        jobId.name = 'jobId[]';
+        
+        titleLabel.innerHTML = '<span>title: </span>';
+        title.value=job.title;
+        title.name = 'title[]';
+        titleLabel.append(title);
+        
+        hourlyRateLabel.innerHTML = '<span>hourly rate:</span>';
+        hourlyRate.setAttribute('type', 'number');
+        hourlyRate.value = job.hourlyRate;
+        hourlyRate.name = 'hourlyRate[]';
+        hourlyRateLabel.append(hourlyRate);
+        
+        existingJobs.append(jobId);
+        existingJobs.append(titleLabel);
+        existingJobs.append(hourlyRateLabel);
+    },
+          
+    //save changes
+    updateJobs = ()=>{
+        
+        window.dispatchEvent(jobsLoaded);
+        
+        jobForm.parentElement.style.display = '';
+        
+        return new Promise(resolve=>{
+            new ajaxRequest(dynamicUrl + '/editJobs.php').post(new FormData(jobForm)).then((r,s)=>{
+                if(s === 401) return logUserOut();
+                 resolve(JSON.parse(r));
+            }); 
+        });       
+    },
+          
+    //add all jobs
+    addAllJobs = jobs=>{
+        
+        clearJobs();
+        
+        for(const job of jobs){
+            addJob(job);
+        }
+    };
+    
+    //edit jobs button
+    query('#editJobs').c(e=>{
+        e.preventDefault();
+        
+        jobForm.parentElement.style.display = 'flex';
+    });
+    
+    loadJobs().then(addAllJobs);
+    
+    jobForm.addEventListener('submit', e=>{
+        
+        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
+        jobForm.parentElement.style.display = 'none';
+        
+        updateJobs().then(addAllJobs);
+    });
+    
+    jobForm.addEventListener('reset', ()=>{
+        
+        jobForm.parentElement.style.display = 'none';
+    });
     
     /** sign in/out **/
     (()=>{
@@ -316,7 +429,7 @@ function loadGoogle(){
     /** hours **/
     (()=>{
         
-        const timers = [], timerElement = query('#countdown'), toggleButton = query('#toggleStopwatch'),
+        const timers = [], timerElement = query('#countdown'), toggleButton = query('#toggleStopwatch'), entryForm = query('#newEntry form'), 
         
         //draw the timer (fired every frame when the timer is running)
         drawTimer = ()=>{
@@ -433,7 +546,7 @@ function loadGoogle(){
             
             const note = query('#entryNote').textContent;
             
-            new ajaxRequest(dynamicUrl + '/editEntry.php').post('clockedIn=' + timers[currentJob].started[0] + '&jobId=' + currentJob + '&length=' + getLength(timers[currentJob]).length + '&description=' + note).then((r,s)=>{
+            new ajaxRequest(dynamicUrl + '/editEntry.php').post('clockedIn=' + timers[currentJob].started[0].toGMTString() + '&jobId=' + currentJob + '&length=' + getLength(timers[currentJob]).length + '&description=' + note).then((r,s)=>{
                 if(s === 401) return logUserOut();
                 if(s !== 200) return;
                 
@@ -514,9 +627,16 @@ function loadGoogle(){
                 window.requestAnimationFrame(drawTimer);
             }
         },
+        
+        //clear all entries
+        clearEntries = ()=>{
+            
+            query('#entries').innerHTML = '';
+        },
               
         //update document title with timer
         updateTitle = ()=>{
+            
             if(timers[currentJob]){
                 const parts = getLength(timers[currentJob]);
                 document.title = 'Todo Plus - ' + parts.hours.toString().padStart(2, '0') + ':' + parts.minutes.toString().padStart(2, '0') + ':' + parts.seconds.toString().padStart(2, '0');
@@ -524,6 +644,22 @@ function loadGoogle(){
             }
             
             document.title = 'Todo Plus';
+        },
+              
+        //replace entry
+        replaceEntry = (entry, entries)=>{
+            
+            entries = entries.filter(e=>e.entryId !== entry.entryId);
+            entries.push(entry);
+            
+            return sortEntries(entry);
+        }, 
+              
+        //sort entries
+        sortEntries = entries=>{
+            
+            entries.sort((a,b)=>new Date(a.clockedIn) - new Date(b.clockedIn));
+            return entries;
         };
         
         //update title of page while not in focus
@@ -550,6 +686,33 @@ function loadGoogle(){
         let currentEntries = [];
         loadEntries(currentJob).then(entries=>{
             addAll(entries);
+        });
+        
+        //add / edit
+        query('#addEntry').c(()=>{
+            
+            entryForm.reset();
+            entryForm.parentElement.style.display = 'flex';
+        });
+        
+        entryForm.addEventListener('reset', ()=>{
+            entryForm.parentElement.style.display = '';
+        });
+        
+        entryForm.addEventListener('submit', e=>{
+            e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
+            entryForm.parentElement.style.display = 'none';
+            const data = new URLSearchParams(new FormData(entryForm)).toString();
+            new ajaxRequest(dynamicUrl + '/editEntry.php').post(data).then((r,s)=>{
+                if(s===401) return logUserOut();
+                r = JSON.parse(r);
+                for(const entry of r){
+                    currentEntries = replaceEntry(entry, currentEntries);
+                }
+                clearEntries();
+                addAll(currentEntries);
+            });
+            return false;
         });
     })();
     

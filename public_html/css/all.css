@@ -166,6 +166,10 @@ heading section > *:not(:first-child){
 form{
     display: flex; justify-content: space-between; flex-wrap: wrap;
 }
+form .header{
+    flex-shrink: 0;
+    width:100%;
+}
 form label{
     width: calc(50% - 15px / 2); display: flex;
     margin-bottom: 15px;
@@ -173,6 +177,9 @@ form label{
 form button{
     background:var(--mainBackground); color:var(--mainText); border:none; padding:10px; border-radius: 100px;
     font-family: inherit; font-size: inherit;
+}
+form > span{
+    width: 100%; display: flex; justify-content: space-between;
 }
 form label span{
     flex-grow: 0; flex-shrink: 0;
