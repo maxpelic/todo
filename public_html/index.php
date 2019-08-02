@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Todo Plus</title>
+        <title>TodoPl.us</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         
         <script src="js/all.js" async defer></script>
@@ -13,6 +13,8 @@
         
         <link href="https://fonts.googleapis.com/css?family=Merriweather|Fascinate&display=swap" rel="stylesheet">
         <link href="css/all.css" rel="stylesheet">
+        <link href="css/desktop.css" rel="stylesheet" media="(min-width:630px)">
+        <link href="css/mobile.css" rel="stylesheet" media="(max-width:629px)">
     </head>
     <body>
         <main>
@@ -43,7 +45,7 @@
                         <a id="nextJob"><span>next job</span> ⯈</a>
                     </section>
                     <section>
-                        <h2 class="textLarge noselect otherFont">job</h2>
+                        <h2 id="jobTitle" class="textLarge noselect otherFont">loading</h2>
                     </section>
                     <section class="shadow"></section>
                     <section class="halfPage centerContent fit fullHeight">
@@ -68,7 +70,7 @@
         
         <heading class="stretchContents">
             <section>
-                <a href="/">todo.plus</a>
+                <a href="https://todopl.us">TodoPl.us</a>
                 <a href="https://github.com/maxpelic/todo"><i class="fab fa-github"></i></a>
                 <a href="/donate"><i class="fa fas fa-hand-holding-usd"></i></a>
             </section>
@@ -95,7 +97,7 @@
                 <input hidden name="jobId[]" value="">
                 <label><span>title:</span> <input type="text" name="title[]"></label><label><span>hourly rate:</span> <input type="number" value=0 name="hourlyRate[]"></label>
                 <section class="stretchContents">
-                    <button type="reset">close</button>
+                    <button id="jobPopupClose" type="button">close</button>
                     <button type="submit">save</button>
                 </section>
             </form>
@@ -154,7 +156,7 @@
                 </label>
                 <section class="stretchContents">
                     <button type="reset" >cancel</button>
-                    <button type="button">archive</button>
+                    <button type="button" id="archiveButton">archive</button>
                     <button type="submit">save</button>
                 </section>
             </form>
@@ -168,6 +170,11 @@
                 <li value=2 class="blue">waiting</li>
                 <li value=3 class="green">complete</li>
             </ul>
+        </section>
+        
+        <section id="loadingCover">
+            <div><span></span><span></span><span></span></div>
+            <p>Loading...</p>
         </section>
     </body>
 </html>

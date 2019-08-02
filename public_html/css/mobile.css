@@ -1,0 +1,36 @@
+form, form > span{
+    flex-wrap: wrap;
+}
+form label{
+    width: calc(50% - 15px / 2); display: flex; min-width: 200px; flex-grow: 1;
+    margin-bottom: 15px;
+}
+heading{
+    flex-wrap: wrap;
+}
+heading section{
+    flex-shrink: 0;
+}
+main > article{
+    width:calc(100% - 30px);
+    max-width: 300px;
+}
+main > article.twoPage{
+    height:1000px;
+}
+.halfPage{
+    top:100px;
+    height:200px;
+    margin:0 15px;
+}
+.halfPage.rightHalf{
+    top:300px;
+    margin:0;
+    bottom:0;
+    height: auto;
+}
+@media (max-width:360px){
+    .textLarge.otherFont{
+        font-size: 15vw;
+    }
+}

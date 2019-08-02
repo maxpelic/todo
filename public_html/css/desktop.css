@@ -1,0 +1,22 @@
+main > article{
+    width:300px; min-width:300px;
+}
+main > article.twoPage{
+    width:600px; min-width: 600px;
+}
+.shadow{
+    top:0; bottom:0; left:0; right:0; position: absolute;
+    background:repeating-linear-gradient(to right, #0001, #0000 60px, #0000 50%);
+    pointer-events: none;
+}
+form label{
+    width: calc(50% - 15px / 2); display: flex;
+    margin-bottom: 15px;
+}
+.halfPage{
+    right:50%;
+    padding: 15px;
+}
+.halfPage.rightHalf{
+    left:50%; right:0; top:100px; width:50%; padding: 0;
+}

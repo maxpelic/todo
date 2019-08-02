@@ -2,7 +2,7 @@
 require getenv('API_URL') . '/database.php';
 require getenv('API_URL') . '/user.php';
 
-if(empty($_POST['length']) || empty($_POST['jobId'])){
+if((empty($_POST['length']) || empty($_POST['jobId'])) && empty($_POST['entryId'])){
     header('HTTP/1.0 400 Bad Request');
     exit;
 }
@@ -36,7 +36,8 @@ $fields = [
     'clockedIn'=>'date',
     'length'=>'int',
     'jobId'=>'string',
-    'description'=>'string'    
+    'description'=>'string',
+    'archived'=>'int'
 ];
 
 foreach($fields as $field=>$type){

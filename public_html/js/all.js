@@ -65,11 +65,30 @@ function loadGoogle(){
         this.request.onloadend = function(){f.apply(this, [this.response, this.status])};
     };
     
+    /** loader **/
+    const loader = {
+        shown:1,
+        element:query('#loadingCover'),
+        show:()=>{
+            loader.shown++;
+            loader.element.style.opacity = 1;
+            loader.element.style.display = 'flex';
+        },
+        hide:()=>{
+            if(--loader.shown) return;
+            window.setTimeout(
+                ()=>void (loader.element.style.display='none'), 500);
+            loader.element.style.opacity=0;
+        }
+    };
+    
     //logout function
     const logUserOut = ()=>{
+        loader.show();
         let completed = 0;
         const redirect = ()=>{
             if(++completed < 2) return;
+            loader.hide();
             query('#logoutNotice').style.display = 'flex';
         }, logOutGoogle = ()=>{
             const instance = gapi.auth2.getAuthInstance();
@@ -97,10 +116,13 @@ function loadGoogle(){
           
     //get all jobs
     loadJobs = ()=>{
-        
+         loader.show();
          return new Promise(resolve=>{
              new ajaxRequest(dynamicUrl + '/getJobs.php').get().then((r,s)=>{
+                 loader.hide();
                  if(s === 401) return logUserOut();
+                 jobsLoaded.data = JSON.parse(r);
+                 window.dispatchEvent(jobsLoaded);
                  resolve(JSON.parse(r));
              });
          });
@@ -161,14 +183,19 @@ function loadGoogle(){
     //save changes
     updateJobs = ()=>{
         
+        loader.show();
+        
         window.dispatchEvent(jobsLoaded);
         
         jobForm.parentElement.style.display = '';
         
         return new Promise(resolve=>{
             new ajaxRequest(dynamicUrl + '/editJobs.php').post(new FormData(jobForm)).then((r,s)=>{
+                loader.hide();
                 if(s === 401) return logUserOut();
-                 resolve(JSON.parse(r));
+                jobsLoaded.data = JSON.parse(r);
+                window.dispatchEvent(jobsLoaded);
+                resolve(JSON.parse(r));
             }); 
         });       
     },
@@ -200,7 +227,7 @@ function loadGoogle(){
         updateJobs().then(addAllJobs);
     });
     
-    jobForm.addEventListener('reset', ()=>{
+    jobForm.querySelector('#jobPopupClose').c(()=>{
         
         jobForm.parentElement.style.display = 'none';
     });
@@ -258,7 +285,7 @@ function loadGoogle(){
             item.classList.add('status' + data.status);
             
             item.c(function(e){
-                popupMenu.style.top = e.clientY + 'px';
+                popupMenu.style.top = e.clientY + window.scrollY + 'px';
                 popupMenu.style.left = e.clientX + 'px';
                 popupMenu.classList.add('show');
                 popupMenu.targetItem = this.data;
@@ -282,8 +309,10 @@ function loadGoogle(){
         //fetch all incomplete items and return a promise
         loadIncomplete = ()=>{        
             
+            loader.show();
             return new Promise(resolve=>{
                 new ajaxRequest(dynamicUrl + '/getIncompleteItems.php').get().then((r,s)=>{
+                    loader.hide();
                     if(s === 401) return logUserOut();
                     resolve(JSON.parse(r));
                 });
@@ -377,8 +406,10 @@ function loadGoogle(){
         query('#newItem form').addEventListener('submit', function(e){
             e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
             this.parentElement.style.display = 'none';
+            loader.show();
             const data = new URLSearchParams(new FormData(this)).toString();
             new ajaxRequest(dynamicUrl + '/editItem.php').post(data).then((r,s)=>{
+                loader.hide();
                 if(s===401) return logUserOut();
                 r = JSON.parse(r);
                 for(const item of r){
@@ -411,7 +442,9 @@ function loadGoogle(){
             
             option.c(function(){
 
+                loader.show();
                 new ajaxRequest(dynamicUrl + '/editItem.php').post('itemId=' + popupMenu.targetItem.itemId + '&status=' + this.value).then((r,s)=>{
+                    loader.hide();
                     if(s===401) return logUserOut();
                     r = JSON.parse(r);
                     for(const item of r){
@@ -451,7 +484,7 @@ function loadGoogle(){
             
             let timeRun = 0;
             for(let i = 0; i < timer.started.length; i++){
-                timeRun += (timer.paused[i] || new Date().getTime()) - timer.started[i];
+                timeRun += ((timer.paused[i] && timer.paused[i].getTime()) || new Date().getTime()) - timer.started[i].getTime();
             }
             
             return toParts(timeRun);
@@ -487,8 +520,11 @@ function loadGoogle(){
                 timerElement.innerHTML = '<span>0</span><span>0</span>:<span>0</span><span>0</span>:<span>0</span><span>0</span>';
                 toggleButton.textContent = 'start';
                 timerElement.classList.remove('blue');
+                query('#logEntry').style.display = 'none';
                 return;
             }
+                
+            query('#logEntry').style.display = '';
             
             //pause
             if(timers[currentJob].running){
@@ -516,13 +552,13 @@ function loadGoogle(){
             timers[currentJob].running = !timers[currentJob].running;     
             
             if(timers[currentJob].running){
-                timers[currentJob].started.push(new Date().getTime());
+                timers[currentJob].started.push(new Date());
                 
                 window.localStorage.setItem('timer.' + currentJob, new Date().getTime() - getLength(timers[currentJob]).length);
                 
                 window.requestAnimationFrame(drawTimer);
             } else {
-                timers[currentJob].paused.push(new Date().getTime());                
+                timers[currentJob].paused.push(new Date());                
                 
                 window.localStorage.setItem('timer.' + currentJob, new Date().getTime() - getLength(timers[currentJob]).length+ '_paused_' + new Date().getTime());
             }
@@ -544,9 +580,12 @@ function loadGoogle(){
         //save current timer and reset
         saveTimer = ()=>{
             
+            loader.show();
+            
             const note = query('#entryNote').textContent;
             
             new ajaxRequest(dynamicUrl + '/editEntry.php').post('clockedIn=' + timers[currentJob].started[0].toGMTString() + '&jobId=' + currentJob + '&length=' + getLength(timers[currentJob]).length + '&description=' + note).then((r,s)=>{
+                loader.hide();
                 if(s === 401) return logUserOut();
                 if(s !== 200) return;
                 
@@ -561,7 +600,9 @@ function loadGoogle(){
         //load entries for a job
         loadEntries = job=>{
             
+            loader.show();
             return new Promise(resolve=>{
+                loader.hide();
                 new ajaxRequest(dynamicUrl + '/getEntries.php?jobId=' + job).get().then((r,s)=>{
                     if(s === 401) return logUserOut();
                     if(s !== 200) return;
@@ -601,13 +642,15 @@ function loadGoogle(){
             
             item.append(secondRow);
             
+            item.c(()=>void editEntry(entry));
+            
             query('#entries').prepend(item);
         },
               
         //load timer from storage (if timer is saved)
         loadFromStorage = job=>{
             
-            if(!window.localStorage.getItem('timer.' + job)) return;
+            if(!window.localStorage.getItem('timer.' + job)) return void refreshTimer();
             
             const data = window.localStorage.getItem('timer.' + job).split('_');
             
@@ -639,11 +682,10 @@ function loadGoogle(){
             
             if(timers[currentJob]){
                 const parts = getLength(timers[currentJob]);
-                document.title = 'Todo Plus - ' + parts.hours.toString().padStart(2, '0') + ':' + parts.minutes.toString().padStart(2, '0') + ':' + parts.seconds.toString().padStart(2, '0');
+                document.title = 'TodoPl.us (' + parts.hours.toString().padStart(2, '0') + ':' + parts.minutes.toString().padStart(2, '0') + ':' + parts.seconds.toString().padStart(2, '0') + ')';
                 return;
             }
-            
-            document.title = 'Todo Plus';
+            document.title = 'TodoPl.us';
         },
               
         //replace entry
@@ -652,7 +694,7 @@ function loadGoogle(){
             entries = entries.filter(e=>e.entryId !== entry.entryId);
             entries.push(entry);
             
-            return sortEntries(entry);
+            return sortEntries(entries);
         }, 
               
         //sort entries
@@ -671,11 +713,98 @@ function loadGoogle(){
         });
         window.addEventListener('focus', ()=>{
             window.clearInterval(titleInterval);
-            document.title = 'Todo Plus';
-        });
+            document.title = 'TodoPl.us';
+        }),
+            
+        //show entry editing form
+        editEntry = data=>{
+            
+            const dreams = entryForm.querySelectorAll('input, select');
+            entryForm.reset();
+            for(const field of dreams){
+                let value = data[field.getAttribute('name')];
+                if(!value) continue;
+                if(field.type === 'date')
+                    value = new Date(value).toLocaleDateString('en-CA');
+                if(field.name === 'length')
+                    value = value / (60 * 1000);
+                field.value = value;
+            }
+            entryForm.parentElement.style.display = 'flex';
+            query('#newEntry h1').textContent = 'Edit Entry';
+        },
+            
+        //delete enrty
+        archiveEntry = (entryId, entries)=>{
+            
+            loader.show();
+            return new Promise(resolve=>{
+                
+                if(!entryId) resolve(entries);
+                else                 
+                    new ajaxRequest(dynamicUrl + '/editEntry.php').post('entryId=' + entryId + '&archived=1').then((r,s)=>{
+                        loader.hide();
+                        if(s === 401) return logUserOut();
+                        resolve(entries.filter(entry=>entry.entryId!==entryId));
+                    });
+            });
+        },
+            
+        //update job title stuff
+        updateJobTitleStuff = jobs=>{
+            
+            const currentIndex = jobs.findIndex(obj=>obj.jobId===currentJob), lastJob = query('#lastJob'), nextJob = query('#nextJob');
+            
+            if(currentIndex < 0) currentIndex = 0;
+            
+            lastJob.style.opacity = nextJob.style.opacity = 1;
+            
+            if(!currentIndex)
+                lastJob.style.opacity = 0;
+            else if(currentIndex === jobs.length -1)
+                nextJob.style.opacity = 0;
+            
+            query('#jobTitle').textContent = jobs[currentIndex].title;
+            
+            lastJob.onclick = ()=>switchJobs(jobs, currentIndex - 1);
+            nextJob.onclick = ()=>switchJobs(jobs, currentIndex + 1);
+            
+        },
+              
+        //switch to different job
+        switchJobs = (jobs, index)=>{
+            
+            if(!timers[currentJob] || !timers[currentJob].running){
+                currentJob = jobs[index].jobId;
+                drawTimer();
+            } else {
+                currentJob = jobs[index].jobId;
+            }            
+            updateJobTitleStuff(jobs);
+            clearEntries();
+            loadEntries(currentJob).then(addAll);
+            
+            localStorage.setItem('currentJob', currentJob);
+            
+            if(!timers[currentJob]) loadFromStorage(currentJob);
+            
+            refreshTimer();
+        };
         
         //set up timer
         let currentJob = window.localStorage.getItem('currentJob') || 'none';
+        
+        //job selection
+        window.addEventListener('jobsLoad', e=>{
+            e.data.splice(0,0,{
+                jobId:'none',
+                title:'(none)',
+                hourlyRate:0
+            });
+            
+            updateJobTitleStuff(e.data);
+            
+        });
         
         loadFromStorage(currentJob);
         
@@ -690,8 +819,10 @@ function loadGoogle(){
         
         //add / edit
         query('#addEntry').c(()=>{
-            
+            query('#newEntry h1').textContent = 'New Entry';
             entryForm.reset();
+            entryForm.querySelector('[name=jobId]').value = currentJob;
+            entryForm.querySelector('[name=clockedIn]').value = new Date().toLocaleDateString('en-CA');
             entryForm.parentElement.style.display = 'flex';
         });
         
@@ -702,8 +833,15 @@ function loadGoogle(){
         entryForm.addEventListener('submit', e=>{
             e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
             entryForm.parentElement.style.display = 'none';
+            
+            const lengthElement = entryForm.querySelector('[name=length]');
+            lengthElement.value = lengthElement.value * 60 * 1000;
+            
+            loader.show();
+            
             const data = new URLSearchParams(new FormData(entryForm)).toString();
             new ajaxRequest(dynamicUrl + '/editEntry.php').post(data).then((r,s)=>{
+                loader.hide();
                 if(s===401) return logUserOut();
                 r = JSON.parse(r);
                 for(const entry of r){
@@ -714,6 +852,19 @@ function loadGoogle(){
             });
             return false;
         });
+        
+        query('#archiveButton').c(()=>{
+            entryForm.parentElement.style.display='';
+            archiveEntry(entryForm.querySelector('[name=entryId]').value, currentEntries).then(entries=>{
+                currentEntries = entries;
+                clearEntries();
+                addAll(currentEntries);
+            });
+        });
     })();
+    
+    loader.hide();
+    
+    window.loader = loader;
     
 })();

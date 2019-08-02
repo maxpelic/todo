@@ -26,7 +26,7 @@ class Entry{
     
     /** get all user's entries per job **/
     function getEntries($userId, $jobId){
-        return $this->formatResult($this->sql->prepare('SELECT * FROM entries WHERE userId = ? AND jobId = ? ORDER BY clockedIn ASC')->bindString($userId)->bindString($jobId)->execute()->getResult());
+        return $this->formatResult($this->sql->prepare('SELECT * FROM entries WHERE userId = ? AND jobId = ? AND archived <> true ORDER BY clockedIn ASC')->bindString($userId)->bindString($jobId)->execute()->getResult());
     }
     
     /** create new entry **/

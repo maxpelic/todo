@@ -52,7 +52,7 @@ foreach($_POST['jobId'] as $index=>$jobId){
             $updateQuery->bindString($value);
         }
 
-        $updateQuery->bindString($entryId);
+        $updateQuery->bindString($jobId);
         $updateQuery->bindString($userId);
 
         $updateQuery->execute();
