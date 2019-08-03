@@ -1,5 +1,5 @@
 /* eslint-env es6 */
-/* global window,document,gapi,HTMLElement,Event,XMLHttpRequest,URLSearchParams,FormData */
+/* global window,document,gapi,HTMLElement,Event,XMLHttpRequest,URLSearchParams,FormData,localStorage */
 const googleLoadEvent = new Event('googleLoad');
 // eslint-disable-next-line
 function loadGoogle(){
@@ -377,7 +377,7 @@ function loadGoogle(){
                 field.value = value;
             }
             form.parentElement.style.display = 'flex';
-            query('#newItem h1').textContent = 'Edit Item';
+            query('#newItem h1').textContent = 'edit item';
         };
         
         //load priority options
@@ -399,7 +399,7 @@ function loadGoogle(){
             query('#newItem [name=itemId]').value = '';
             query('#newItem form').reset();
             query('#newItem').style.display = 'flex';
-            query('#newItem h1').textContent = 'Add an Item';
+            query('#newItem h1').textContent = 'new item';
         });
         
         //item form (new and edited)
@@ -518,8 +518,7 @@ function loadGoogle(){
             //start
             if(!timers[currentJob]){
                 timerElement.innerHTML = '<span>0</span><span>0</span>:<span>0</span><span>0</span>:<span>0</span><span>0</span>';
-                toggleButton.textContent = 'start';
-                timerElement.classList.remove('blue');
+                toggleButton.innerHTML = '<i class="fas fa-play"></i>';
                 query('#logEntry').style.display = 'none';
                 return;
             }
@@ -528,14 +527,12 @@ function loadGoogle(){
             
             //pause
             if(timers[currentJob].running){
-                timerElement.classList.add('blue');
-                toggleButton.textContent = 'pause';
+                toggleButton.innerHTML = '<i class="fas fa-pause"></i>';
                 return;
             } 
             
             //resume
-            timerElement.classList.remove('blue');
-            toggleButton.textContent = 'resume';
+            toggleButton.innerHTML = '<i class="fas fa-play"></i>';
         },
               
         //toggle timer running
@@ -714,10 +711,10 @@ function loadGoogle(){
         window.addEventListener('focus', ()=>{
             window.clearInterval(titleInterval);
             document.title = 'TodoPl.us';
-        }),
+        });
             
         //show entry editing form
-        editEntry = data=>{
+        const editEntry = data=>{
             
             const dreams = entryForm.querySelectorAll('input, select');
             entryForm.reset();
@@ -731,7 +728,7 @@ function loadGoogle(){
                 field.value = value;
             }
             entryForm.parentElement.style.display = 'flex';
-            query('#newEntry h1').textContent = 'Edit Entry';
+            query('#newEntry h1').textContent = 'edit entry';
         },
             
         //delete enrty
@@ -753,7 +750,7 @@ function loadGoogle(){
         //update job title stuff
         updateJobTitleStuff = jobs=>{
             
-            const currentIndex = jobs.findIndex(obj=>obj.jobId===currentJob), lastJob = query('#lastJob'), nextJob = query('#nextJob');
+            let currentIndex = jobs.findIndex(obj=>obj.jobId===currentJob), lastJob = query('#lastJob'), nextJob = query('#nextJob');
             
             if(currentIndex < 0) currentIndex = 0;
             
@@ -819,7 +816,7 @@ function loadGoogle(){
         
         //add / edit
         query('#addEntry').c(()=>{
-            query('#newEntry h1').textContent = 'New Entry';
+            query('#newEntry h1').textContent = 'new entry';
             entryForm.reset();
             entryForm.querySelector('[name=jobId]').value = currentJob;
             entryForm.querySelector('[name=clockedIn]').value = new Date().toLocaleDateString('en-CA');

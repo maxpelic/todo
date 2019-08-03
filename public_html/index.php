@@ -11,74 +11,64 @@
         <meta name="dynamicUrl" content="<?php echo htmlspecialchars(getenv('DYNAMIC_URL')); ?>">
         <meta name="google-signin-client_id" content="<?php echo getenv('GOOGLE_LOGIN_CLIENT_ID'); ?>">
         
-        <link href="https://fonts.googleapis.com/css?family=Merriweather|Fascinate&display=swap" rel="stylesheet">
-        <link href="css/all.css" rel="stylesheet">
-        <link href="css/desktop.css" rel="stylesheet" media="(min-width:630px)">
-        <link href="css/mobile.css" rel="stylesheet" media="(max-width:629px)">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:900|Source+Sans+Pro&display=swap" rel="stylesheet">
+        <link href="css/style.css" rel="stylesheet">
     </head>
     <body>
-        <main>
-            <article>
-                <h1 class="textLarge noselect">todo</h1>
-                <section>
-                    <section class="stretchContents noselect">
-                        <select name="jobId" id="todoJob">
-                            <option selected>all jobs</option>
-                        </select>
-                        <a id="toggleCompleted">view completed</a>
-                    </section>
-                    <section class="textSpace green noselect">
-                        <a id="addItem">add item</a>
-                    </section>
-                    <section class="fit">
-                        <ol id="items" class="list">
-                        </ol>
-                    </section>
-                </section>
-            </article>
-            
-            <article class="twoPage">
-                <h1 class="textLarge noselect">hours</h1>
-                <section>
-                    <section class="stretchContents noselect">
-                        <a id="lastJob">⯇ <span>last job</span></a>
-                        <a id="nextJob"><span>next job</span> ⯈</a>
-                    </section>
-                    <section>
-                        <h2 id="jobTitle" class="textLarge noselect otherFont">loading</h2>
-                    </section>
-                    <section class="shadow"></section>
-                    <section class="halfPage centerContent fit fullHeight">
-                        <h3 class="textLarge monospace otherFont" id="countdown"><span>0</span><span>0</span>:<span>0</span><span>0</span>:<span>0</span><span>0</span></h3>
-                        <section class="stretchContents noselect">
-                            <a class="green" id="toggleStopwatch">start</a>
-                            <a class="green" id="logEntry">save</a>
-                            <a class="red" id="clearStopwatch">clear</a>
-                        </section>
-                        <pre contenteditable="true" id="entryNote"></pre>
-                    </section>
-                    <section class="halfPage rightHalf fit">
-                        <section class="textSpace green noselect">
-                            <a id="addEntry">add entry</a>
-                        </section>
-                        <ol id="entries" class="list">
-                        </ol>
-                    </section>
-                </section>
-            </article>
-        </main>
-        
-        <heading class="stretchContents">
+        <heading>
             <section>
                 <a href="https://todopl.us">TodoPl.us</a>
                 <a href="https://github.com/maxpelic/todo"><i class="fab fa-github"></i></a>
                 <a href="/donate"><i class="fa fas fa-hand-holding-usd"></i></a>
             </section>
             <section>
-                <a id="editJobs">edit jobs</a>
-                <a id="logoutLink" href="<?php echo getenv('DYNAMIC_URL'); ?>/logout.php" title="Sign out"><i class="fas fa-sign-out-alt"></i> sign out</a>
+                <a id="editJobs">edit jobs <i class="fas fa-briefcase"></i></a>
+                <a id="logoutLink" href="<?php echo getenv('DYNAMIC_URL'); ?>/logout.php" title="Sign out">sign out <i class="fas fa-sign-out-alt"></i></a>
             </section>
         </heading>
+        <main>
+            <article>
+                <a id="addItem" class="circleButton floatRight"><i class="fas fa-plus"></i></a>
+                <h1 class="textLarge noselect">todo</h1>
+                <section>
+                    <section hidden>
+                        <select name="jobId" id="todoJob">
+                            <option selected>all jobs</option>
+                        </select>
+                        <a id="toggleCompleted">view completed</a>
+                    </section>
+                    <section>
+                        <ol id="items" class="list">
+                        </ol>
+                    </section>
+                </section>
+            </article>
+            
+            <article>
+                <a id="addEntry" class="circleButton floatRight"><i class="fas fa-plus"></i></a>
+                <section class="circleBack">
+                    <section class="overlay">
+                        <h1 class="textLarge noselect">hours</h1>
+                        <section class="fitCircle noselect">
+                            <a id="lastJob"><i class="fas fa-caret-left"></i> </a>
+                            <span id="jobTitle">loading</span>
+                            <a id="nextJob"> <i class="fas fa-caret-right"></i></a>
+                        </section>
+                        <section>
+                            <h3 class="textLarge" id="countdown"><span>0</span><span>0</span>:<span>0</span><span>0</span>:<span>0</span><span>0</span></h3>
+                            <section class="buttonContainer">
+                                <a class="circleButton" id="toggleStopwatch"><i class="fas fa-play"></i></a>
+                                <a class="circleButton" id="logEntry"><i class="fas fa-save"></i></a>
+                                <a class="bad circleButton" id="clearStopwatch"><i class="fas fa-times"></i></a>
+                            </section>
+                            <pre contenteditable="true" id="entryNote"></pre>
+                            <ol id="entries" class="list">
+                            </ol>
+                        </section>
+                    </section>
+                </section>
+            </article>
+        </main>
         
         <section id="logoutNotice" class="popup">
             <section>
@@ -93,12 +83,12 @@
             <form autocomplete="off">
                 <h1 class="textLarge">edit jobs</h1>
                 <span id="existingJobs"></span><br>
-                <b class="header">new job:</b><br><br>
+                <b>new job:</b><br><br>
                 <input hidden name="jobId[]" value="">
                 <label><span>title:</span> <input type="text" name="title[]"></label><label><span>hourly rate:</span> <input type="number" value=0 name="hourlyRate[]"></label>
-                <section class="stretchContents">
-                    <button id="jobPopupClose" type="button">close</button>
-                    <button type="submit">save</button>
+                <section class="buttonArea">
+                    <button id="jobPopupClose" type="button" class="bad">close</button>
+                    <button type="submit" class="good">save</button>
                 </section>
             </form>
         </section>
@@ -106,7 +96,7 @@
         <section id="newItem" class="popup">
             <form autocomplete="off">
                 <input hidden name="itemId" value="">
-                <h1 class="textLarge">add an item</h1>
+                <h1 class="textLarge">new item</h1>
                 <label><span>title: </span><input type="text" name="title" placeholder="enter item title" required></label>
                 <label><span>description:</span> <input type="text" name="description" placeholder="description"></label>
                 <label><span>priority:</span>                    
@@ -136,8 +126,8 @@
                         <option value=3>complete</option>
                     </select>
                 </label>
-                <section class="stretchContents">
-                    <button type="reset" >cancel</button><button type="submit">save</button>
+                <section class="buttonArea">
+                    <button type="reset"  class="bad">cancel</button><button type="submit" class="good">save</button>
                 </section>
             </form>
         </section>
@@ -145,7 +135,7 @@
         <section id="newEntry" class="popup">
             <form autocomplete="off">
                 <input hidden name="entryId" value="">
-                <h1 class="textLarge">add an entry</h1>
+                <h1 class="textLarge">new entry</h1>
                 <label><span>length: </span><input type="number" name="length" placeholder="length (in minutes)" required></label>
                 <label><span>description:</span> <input type="text" name="description" placeholder="description"></label>
                 <label><span>date started:</span><input type="date" name="clockedIn" value="" required></label>
@@ -154,27 +144,26 @@
                         <option selected>none</option> 
                     </select>                
                 </label>
-                <section class="stretchContents">
-                    <button type="reset" >cancel</button>
-                    <button type="button" id="archiveButton">archive</button>
-                    <button type="submit">save</button>
+                <section class="buttonArea">
+                    <button type="reset" class="bad">cancel</button>
+                    <button type="button" id="archiveButton" class="bad">archive</button>
+                    <button type="submit" class="good">save</button>
                 </section>
             </form>
         </section>
         
         <section class="popupMenu" id="checklistMenu">
             <ul>
-                <li name="edit" class="textSpace">edit</li>
-                <li value=0 class="red">no progress</li>
-                <li value=1 class="orange">started</li>
-                <li value=2 class="blue">waiting</li>
-                <li value=3 class="green">complete</li>
+                <li name="edit">edit <i class="fas fa-edit"></i></li>
+                <li value=0>no progress</li>
+                <li value=1 class="bad">started</li>
+                <li value=2 class="good">waiting</li>
+                <li value=3>complete</li>
             </ul>
         </section>
         
         <section id="loadingCover">
-            <div><span></span><span></span><span></span></div>
-            <p>Loading...</p>
+            <div><span></span><span></span><span></span><p>Loading...</p></div>
         </section>
     </body>
 </html>
