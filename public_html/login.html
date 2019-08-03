@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Login | Title Pending</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://apis.google.com/js/platform.js" async defer></script>
+        <meta name="google-signin-client_id" content="1078645540388-8u3469p3vl81sele8vm457mljrr56juj.apps.googleusercontent.com">
+        <script>
+            let $statusElement;
+            const update_status = (message, statusType)=>{
+                $statusElement = $statusElement || query('.status');
+                $statusElement.textContent = message;
+                $statusElement.className = 'status ' + statusType;                
+            }, query = s=>document.querySelector(s);
+            var onGoogleSignIn = googleUser=>{
+                const id_token = googleUser.getAuthResponse().id_token, login_request = new XMLHttpRequest();
+                login_request.open('POST', "<?php echo getenv('DYNAMIC_URL'); ?>/loginWithGoogle.php", true);
+                login_request.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+                login_request.onloadend = r=>{
+                    if(login_request.status !== 200)
+                        return update_status('Whoops, Google Sign-in failed', 'bad');
+                    update_status('Signed in with Google, redirecting', 'good');
+                    
+                    window.location.href="/";
+                };
+                login_request.send('id_token='+encodeURIComponent(id_token));          
+            };         
+        </script>
+        <style>
+            body{
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height:100vh;
+            }
+        </style>
+    </head>
+    <body>
+        <span class="status"></span>
+        <div class="g-signin2" data-onsuccess="onGoogleSignIn"></div>
+    </body>
+</html>
