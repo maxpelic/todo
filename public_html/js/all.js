@@ -47,6 +47,7 @@ function loadGoogle(){
     /** ajax requests **/
     function ajaxRequest(url){
         this.request = new XMLHttpRequest();
+        this.request.withCredentials = true;
         this.url = url;
         return this;
     }
