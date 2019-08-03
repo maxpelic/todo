@@ -13,13 +13,14 @@
         
         <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:900|Source+Sans+Pro&display=swap" rel="stylesheet">
         <link href="css/style.css" rel="stylesheet">
+        <link href="css/desktop.css" rel="stylesheet" media="(min-width:700px)">
     </head>
     <body>
         <heading>
             <section>
                 <a href="https://todopl.us">TodoPl.us</a>
                 <a href="https://github.com/maxpelic/todo"><i class="fab fa-github"></i></a>
-                <a href="/donate"><i class="fa fas fa-hand-holding-usd"></i></a>
+                <a href="/donate" hidden><i class="fa fas fa-hand-holding-usd"></i></a>
             </section>
             <section>
                 <a id="editJobs">edit jobs <i class="fas fa-briefcase"></i></a>

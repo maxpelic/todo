@@ -26,6 +26,14 @@
                 login_request.send('id_token='+encodeURIComponent(id_token));          
             };         
         </script>
+        <style>
+            body{
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height:100vh;
+            }
+        </style>
     </head>
     <body>
         <span class="status"></span>
