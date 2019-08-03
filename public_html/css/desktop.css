@@ -1,0 +1,13 @@
+main{
+    display:flex;
+    justify-content: center;
+}
+main article, .popup > *{
+    width: 350px;
+    flex-shrink: 1;
+    margin:var(--spacing);
+    flex-grow: 0;
+}
+.popup{
+    justify-content: center;
+}
