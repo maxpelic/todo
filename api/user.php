@@ -58,18 +58,23 @@ class User{
     
     /** login user in with google id **/
     function loginWithGoogle($id_token){
-        require_once $_SERVER['DOCUMENT_ROOT'] . '/../google-api-php-client/vendor/autoload.php';
+        $c = curl_init();
         
-        $client = new Google_Client(['client_id' => getenv('GOOGLE_LOGIN_CLIENT_ID')]);
+        curl_setopt($c, CURLOPT_URL, 'https://oauth2.googleapis.com/tokeninfo?id_token=' . urlencode($id_token));
         
-        $payload = $client->verifyIdToken($id_token);
+        curl_setopt($c, CURLOPT_RETURNTRANSFER, 1);
         
-        if(!$payload || empty($payload['sub'])){
-            return false;
+        $result = curl_exec($c);
+        
+        $result = json_decode($result);
+        
+        if(isset($result->error) || $result->aud !== '1078645540388-8u3469p3vl81sele8vm457mljrr56juj.apps.googleusercontent.com'){
+            return 0;
         }
         
-        //check for user
-        $googleId = $payload['sub'];
+        $email = $result->email;
+        
+        $googleId = $result->sub;
         
         $userExists = $this->sql->prepare('SELECT userId FROM user_accounts WHERE googleId = ? LIMIT 1')->bindString($googleId)->execute()->getResult();
         
@@ -92,7 +97,7 @@ class User{
             }
         } while ($keyExists->getResult()->num_rows);
         
-        $this->sql->prepare('INSERT INTO user_accounts(googleId, userId, email) VALUES(?, ?, ?)')->bindString($googleId)->bindString($userId)->bindString($payload['email'])->execute();
+        $this->sql->prepare('INSERT INTO user_accounts(googleId, userId, email) VALUES(?, ?, ?)')->bindString($googleId)->bindString($userId)->bindString($email)->execute();
         
         if($this->sql->getAffectedRows()){
             return $this->logUserIn($userId);
