@@ -85,25 +85,15 @@ function loadGoogle(){
     
     //logout function
     const logUserOut = ()=>{
-        loader.show();
-        let completed = 0;
-        const redirect = ()=>{
-            if(++completed < 2) return;
-            loader.hide();
-            query('#logoutNotice').style.display = 'flex';
-        }, logOutGoogle = ()=>{
+        query('#logoutNotice').style.display = 'flex';
+        const logOutGoogle = ()=>{
             const instance = gapi.auth2.getAuthInstance();
-            if(instance.isSignedIn.Ab) instance.signOut().finally(redirect);
-            else redirect();
+            if(instance.isSignedIn.Ab) instance.signOut();
         };
         new ajaxRequest(dynamicUrl + '/logout.php').get().then((r, s)=>{
-            if(s === 200){
-                //logged out
-                redirect();
-            } else {
-                //delete cookie and redirect
+            if(s !== 200){
+                //delete cookie
                 document.cookie = 'heyo=null; expires=Thu, 01 Jan 1970 00:00:00 UTC';
-                redirect();
             }
         });
 
