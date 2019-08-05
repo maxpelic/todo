@@ -93,7 +93,7 @@ function loadGoogle(){
             query('#logoutNotice').style.display = 'flex';
         }, logOutGoogle = ()=>{
             const instance = gapi.auth2.getAuthInstance();
-            if(instance.isSignedIn.Ab) instance.signOut().then(redirect);
+            if(instance.isSignedIn.Ab) instance.signOut().finally(redirect);
             else redirect();
         };
         new ajaxRequest(dynamicUrl + '/logout.php').get().then((r, s)=>{
