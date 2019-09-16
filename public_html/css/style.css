@@ -1,6 +1,8 @@
 /** MAIN STUFF **/
-:root{
+html{
     --background:#FFFEFF;
+    --background-button:#FFFEFF;
+    --background-popup:#444140aa;
     --text:#444140;
     --bad:#FFA987;
     --good:#A5FFD6;
@@ -8,6 +10,30 @@
     --spacing:30px;
     
     --shadow:0 3px 10px #44414040;
+}
+/** UPDATED with dark mode **/
+html[mode=dark], html[mode=black]{
+    --background:#111;
+    --background-button:#222;
+    --text:#ddd;
+    
+    --good:#222;
+    --good-dark:#A5FFD6;
+    
+    
+    --shadow:0 0 0 1px #111;
+}
+html[mode=black]{
+    --background:black;
+    --background-button:black;
+    --background-popup:#000d;
+        
+    
+    --good:black;
+    
+    
+    --shadow:0 0 0 1px #ddd;
+    
 }
 /** RESETS **/
 html, body, .list, .list > * > p, .popupMenu ul{
@@ -84,7 +110,7 @@ article{
     align-items:center;
     border-radius:100px;
     color:var(--good-dark);
-    background:var(--background);
+    background:var(--background-button);
     z-index: 3;
     border:none;
 }
@@ -152,7 +178,7 @@ button{
 .popup, #loadingCover{
     display: none;
     position: fixed;
-    background:#444140aa;
+    background:var(--background-popup);
     top:0;
     left:0;
     right:0;

@@ -9,6 +9,7 @@ function loadGoogle(){
     });
 }
 (()=>{
+    
     /** tools to make my life easier **/
     const query = q=>document.querySelector(q), dynamicUrl = query('meta[name=dynamicUrl]').getAttribute('content'), element = (t) => document.createElement(t), formatDate = date=>{
         date = new Date(date);
@@ -65,6 +66,15 @@ function loadGoogle(){
     ajaxRequest.prototype.then = function(f){
         this.request.onloadend = function(){f.apply(this, [this.response, this.status])};
     };
+    
+    /** setup **/
+    document.documentElement.setAttribute('mode', localStorage.getItem('mode'));
+    const modeSelector = query('#mode');
+    modeSelector.value = localStorage.getItem('mode') || 'light';
+    modeSelector.onchange = ()=>{
+        localStorage.setItem('mode', modeSelector.value);
+        document.documentElement.setAttribute('mode', modeSelector.value);
+    }
     
     /** loader **/
     const loader = {
